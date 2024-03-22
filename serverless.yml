@@ -32,18 +32,41 @@ functions:
           method: get
 
   getAllPatients:
-    handler: src/handler.getAllPatients
+    handler: src/handler_ospedale.getAllPazienti
     events:
       - httpApi:
-          path: /getAllPatients
+          path: /getAllPazienti
           method: get
 
-  getPatient:
-    handler: src/handler.getPatient
+  getPatientById:
+    handler: src/handler_ospedale.getPatientById
     events:
       - httpApi:
-          path: /getPatient
+          path: /getPatientById/{id}
           method: get
+
+  updatePaziente:
+    handler: src/handler_ospedale.updatePaziente
+    events:
+      - httpApi:
+          path: /updatePaziente/{id}
+          method: put
+
+  deletePaziente:
+    handler: src/handler_ospedale.deletePaziente
+    events:
+      - httpApi:
+          path: /deletePaziente/{id}
+          method: delete
+
+  createPaziente:
+    handler: src/handler_ospedale.createPaziente
+    events:
+      - httpApi:
+          path: /createPaziente
+          method: post
+
+  
 
 plugins:
   - serverless-offline

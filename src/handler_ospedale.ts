@@ -13,8 +13,8 @@
     - deletePaziente
 */
 
-import { APIGatewayProxyResult } from "aws-lambda"
-import { createConnection } from "mysql2"
+import { APIGatewayProxyResult, APIGatewayProxyEvent } from "aws-lambda"
+import { createConnection } from "mysql2/promise"
 import { IPaziente } from "./models/IPaziente"
 
 
@@ -58,7 +58,7 @@ export const getAllPazienti = async (): Promise<APIGatewayProxyResult> => {
     
 }
 
-export const getPazienteById = async (event: APIGatewayProxyResult): Promise<APIGatewayProxyResult> => {
+export const getPazienteById = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
     try {
 
         if(!event.pathParameters?.id) {
@@ -129,14 +129,76 @@ export const createPaziente = async (event: APIGatewayProxyResult): Promise<APIG
         }
         return response; 
     }
-    
-    
 }
 
 export const updatePaziente = async (event: APIGatewayProxyResult): Promise<APIGatewayProxyResult> => {
+    try {
+        if(!event.body) {
+            throw new Error("Missing request body")
+        }
+
+        const paziente: Omit<IPaziente, "ID"> = JSON.parse(event.body)
+
+        const dbConnection = await getDbConnection()
+
+        const [rows] = await dbConnection.query(
+            "UPDATE Pazienti SET ?",
+            [paziente]
+            )
+        await dbConnection.end()
+
+        console.table(rows)
+        
+        const response: APIGatewayProxyResult = {
+            statusCode: 200,
+            body: JSON.stringify(rows)
+        }
     
+        return response; 
+           
+    } catch (error) {
+        const response: APIGatewayProxyResult = {
+            statusCode: 200,
+            body: JSON.stringify({
+                message: error
+            })
+        }
+        return response; 
+    }
 }
 
 export const deletePaziente = async (event: APIGatewayProxyResult): Promise<APIGatewayProxyResult> => {
+    try {
+        if(!event.body) {
+            throw new Error("Missing request body")
+        }
+
+        const paziente: Omit<IPaziente, "ID"> = JSON.parse(event.body)
+
+        const dbConnection = await getDbConnection()
+
+        const [rows] = await dbConnection.query(
+            "INSERT INTO Pazienti SET ?",
+            [paziente]
+            )
+        await dbConnection.end()
+
+        console.table(rows)
+        
+        const response: APIGatewayProxyResult = {
+            statusCode: 200,
+            body: JSON.stringify(rows)
+        }
     
+        return response; 
+           
+    } catch (error) {
+        const response: APIGatewayProxyResult = {
+            statusCode: 200,
+            body: JSON.stringify({
+                message: error
+            })
+        }
+        return response; 
+    }
 }
